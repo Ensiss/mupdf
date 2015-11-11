@@ -806,6 +806,9 @@ static void usage(void)
 	fprintf(stderr, "\t-H -\tpage height for EPUB layout\n");
 	fprintf(stderr, "\t-S -\tfont size for EPUB layout\n");
 	fprintf(stderr, "\t-U -\tuser style sheet for EPUB layout\n");
+	fprintf(stderr, "\t-w -\topen with horizontal autozoom\n");
+	fprintf(stderr, "\t-h -\topen with vertical autozoom\n");
+	fprintf(stderr, "\t-z -\topen with full autozoom\n");
 	exit(1);
 }
 
