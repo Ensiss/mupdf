@@ -806,9 +806,11 @@ static void usage(void)
 	fprintf(stderr, "\t-H -\tpage height for EPUB layout\n");
 	fprintf(stderr, "\t-S -\tfont size for EPUB layout\n");
 	fprintf(stderr, "\t-U -\tuser style sheet for EPUB layout\n");
-	fprintf(stderr, "\t-w -\topen with horizontal autozoom\n");
-	fprintf(stderr, "\t-h -\topen with vertical autozoom\n");
-	fprintf(stderr, "\t-z -\topen with full autozoom\n");
+	fprintf(stderr, "\t-w -\thorizontal autozoom\n");
+	fprintf(stderr, "\t-h -\tvertical autozoom\n");
+	fprintf(stderr, "\t-z -\tfull autozoom\n");
+	fprintf(stderr, "\t-i -\tinverse video\n");
+	fprintf(stderr, "\t-c -\tgrayscale\n");
 	exit(1);
 }
 
@@ -839,7 +841,7 @@ int main(int argc, char **argv)
 
 	pdfapp_init(ctx, &gapp);
 
-	while ((c = fz_getopt(argc, argv, "p:r:A:C:W:H:S:U:zwh")) != -1)
+	while ((c = fz_getopt(argc, argv, "p:r:A:C:W:H:S:U:zwhic")) != -1)
 	{
 		switch (c)
 		{
@@ -860,6 +862,8 @@ int main(int argc, char **argv)
 		case 'z': pdfapp_setautozoom_func(&pdfapp_autozoom); break;
 		case 'w': pdfapp_setautozoom_func(&pdfapp_autozoom_horizontal); break;
 		case 'h': pdfapp_setautozoom_func(&pdfapp_autozoom_vertical); break;
+		case 'i': gapp.invert ^= 1; break;
+		case 'c': gapp.grayscale ^= 1; break;
 		default: usage();
 		}
 	}
