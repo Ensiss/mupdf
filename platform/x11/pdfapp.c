@@ -28,6 +28,8 @@ static void pdfapp_updatepage(pdfapp_t *app);
 
 static const int zoomlist[] = { 18, 24, 36, 54, 72, 96, 120, 144, 180, 216, 288 };
 
+static void (*autozoom_func)(pdfapp_t *) = NULL;
+
 static int zoom_in(int oldres)
 {
 	int i;
@@ -1091,6 +1093,8 @@ void pdfapp_onresize(pdfapp_t *app, int w, int h)
 		app->winh = h;
 		pdfapp_panview(app, app->panx, app->pany);
 		winrepaint(app);
+                if (autozoom_func)
+                  (*autozoom_func)(app);
 	}
 }
 
@@ -1124,8 +1128,14 @@ void pdfapp_autozoom(pdfapp_t *app)
 		pdfapp_autozoom_vertical(app);
 }
 
+void pdfapp_setautozoom_func(void (*f)(pdfapp_t *))
+{
+        autozoom_func = f;
+}
+
 void pdfapp_onkey(pdfapp_t *app, int c, int modifiers)
 {
+        void (*autozoom)(pdfapp_t *) = NULL;
 	int oldpage = app->pageno;
 	enum panning panto = PAN_TO_TOP;
 	int loadpage = 1;
@@ -1226,21 +1236,23 @@ void pdfapp_onkey(pdfapp_t *app, int c, int modifiers)
 	case '+':
 	case '=':
 		app->resolution = zoom_in(app->resolution);
+                pdfapp_setautozoom_func(NULL);
 		pdfapp_showpage(app, 0, 1, 1, 0, 0);
 		break;
 	case '-':
 		app->resolution = zoom_out(app->resolution);
+                pdfapp_setautozoom_func(NULL);
 		pdfapp_showpage(app, 0, 1, 1, 0, 0);
 		break;
 
 	case 'W':
-		pdfapp_autozoom_horizontal(app);
-		break;
+                autozoom = &pdfapp_autozoom_horizontal;
+                break;
 	case 'H':
-		pdfapp_autozoom_vertical(app);
+		autozoom = &pdfapp_autozoom_vertical;
 		break;
 	case 'Z':
-		pdfapp_autozoom(app);
+                autozoom = &pdfapp_autozoom;
 		break;
 
 	case 'L':
@@ -1505,6 +1517,12 @@ void pdfapp_onkey(pdfapp_t *app, int c, int modifiers)
 		break;
 
 	}
+
+        if (autozoom)
+          {
+            autozoom_func = autozoom;
+            (*autozoom_func)(app);
+          }
 
 	if (c < '0' || c > '9')
 		app->numberlen = 0;
