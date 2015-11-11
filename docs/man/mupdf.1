@@ -1,4 +1,4 @@
-.TH MUPDF 1 "May 25, 2015"
+.TH MUPDF 1 "November 11, 2015"
 .\" Please adjust this date whenever revising the manpage.
 
 .SH NAME
@@ -42,6 +42,30 @@ Page height in points for EPUB layout.
 .TP
 .B \-S size
 Font size in points for EPUB layout.
+.TP
+.B \-U file
+User style sheet for EPUB layout
+.TP
+.B \-w
+Use horizontal autozoom
+.TP
+.B \-h
+Use vertical autozoom
+.TP
+.B \-z
+Use full page autozoom
+.TP
+.B \-i
+Use inverse video mode
+.TP
+.B \-c
+Use grayscale
+.TP
+.B \-f
+Open in fullscreen
+.TP
+.B \-P
+Use presentation mode
 
 .SH MOUSE BEHAVIOR
 
@@ -82,8 +106,8 @@ Pan page left, down, up, or right.
 .B \+, \-
 Zoom in or out.
 .TP
-.B W, H
-Zoom page to exactly fit width or height of window.
+.B W, H, Z
+Zoom page to exactly fit width, height, or the whole window.
 .TP
 .B w
 Shrinkwrap window to fit the page.
@@ -135,6 +159,7 @@ Toggle between color and grayscale rendering.
 .TP
 .B C
 Toggle full-page color tinting.
+.TP
 .B i
 Toggle between normal and inverted color rendering.
 .TP
