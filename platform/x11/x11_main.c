@@ -811,6 +811,8 @@ static void usage(void)
 	fprintf(stderr, "\t-z -\tfull autozoom\n");
 	fprintf(stderr, "\t-i -\tinverse video\n");
 	fprintf(stderr, "\t-c -\tgrayscale\n");
+	fprintf(stderr, "\t-f -\tfullscreen\n");
+	fprintf(stderr, "\t-P -\tpresentation mode\n");
 	exit(1);
 }
 
@@ -828,6 +830,7 @@ int main(int argc, char **argv)
 	int width = -1;
 	int height = -1;
 	fz_context *ctx;
+        int fullscreen = 0;
 	struct timeval now;
 	struct timeval *timeout;
 	struct timeval tmo_advance_delay;
@@ -841,7 +844,7 @@ int main(int argc, char **argv)
 
 	pdfapp_init(ctx, &gapp);
 
-	while ((c = fz_getopt(argc, argv, "p:r:A:C:W:H:S:U:zwhic")) != -1)
+	while ((c = fz_getopt(argc, argv, "p:r:A:C:W:H:S:U:zwhicfP")) != -1)
 	{
 		switch (c)
 		{
@@ -862,8 +865,10 @@ int main(int argc, char **argv)
 		case 'z': pdfapp_setautozoom_func(&pdfapp_autozoom); break;
 		case 'w': pdfapp_setautozoom_func(&pdfapp_autozoom_horizontal); break;
 		case 'h': pdfapp_setautozoom_func(&pdfapp_autozoom_vertical); break;
-		case 'i': gapp.invert ^= 1; break;
-		case 'c': gapp.grayscale ^= 1; break;
+		case 'i': gapp.invert = 1; break;
+		case 'c': gapp.grayscale = 1; break;
+		case 'f': fullscreen = 1; break;
+		case 'P': gapp.presentation_mode = 1; break;
 		default: usage();
 		}
 	}
@@ -896,6 +901,9 @@ int main(int argc, char **argv)
 	timeout = NULL;
 
 	pdfapp_open(&gapp, filename, 0);
+
+        if (fullscreen)
+          pdfapp_fullscreen(&gapp);
 
 	FD_ZERO(&fds);
 

@@ -1133,6 +1133,13 @@ void pdfapp_setautozoom_func(void (*f)(pdfapp_t *))
         autozoom_func = f;
 }
 
+void pdfapp_fullscreen(pdfapp_t *app)
+{
+	app->shrinkwrap = 0;
+	winfullscreen(app, !app->fullscreen);
+	app->fullscreen = !app->fullscreen;
+}
+
 void pdfapp_onkey(pdfapp_t *app, int c, int modifiers)
 {
         void (*autozoom)(pdfapp_t *) = NULL;
@@ -1295,9 +1302,7 @@ void pdfapp_onkey(pdfapp_t *app, int c, int modifiers)
 	 */
 
 	case 'f':
-		app->shrinkwrap = 0;
-		winfullscreen(app, !app->fullscreen);
-		app->fullscreen = !app->fullscreen;
+                pdfapp_fullscreen(app);
 		break;
 
 	case 'w':
