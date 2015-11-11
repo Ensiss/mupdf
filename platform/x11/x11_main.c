@@ -836,7 +836,7 @@ int main(int argc, char **argv)
 
 	pdfapp_init(ctx, &gapp);
 
-	while ((c = fz_getopt(argc, argv, "p:r:A:C:W:H:S:U:")) != -1)
+	while ((c = fz_getopt(argc, argv, "p:r:A:C:W:H:S:U:zwh")) != -1)
 	{
 		switch (c)
 		{
@@ -854,6 +854,9 @@ int main(int argc, char **argv)
 		case 'H': gapp.layout_h = fz_atof(fz_optarg); break;
 		case 'S': gapp.layout_em = fz_atof(fz_optarg); break;
 		case 'U': gapp.layout_css = fz_optarg; break;
+		case 'z': pdfapp_setautozoom_func(&pdfapp_autozoom); break;
+		case 'w': pdfapp_setautozoom_func(&pdfapp_autozoom_horizontal); break;
+		case 'h': pdfapp_setautozoom_func(&pdfapp_autozoom_vertical); break;
 		default: usage();
 		}
 	}
