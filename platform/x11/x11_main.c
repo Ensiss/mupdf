@@ -517,7 +517,7 @@ static void drawLinks(pdfapp_t *app)
   t_dll_node    *it;
 
   if (app->hints)
-    dll_delete(app->hints);
+    dll_delete_free_data(app->hints);
   hints = computeHints(app->page_links, "fjdkslqmghrueizoaptyvcxwbn");
   app->hints = hints;
   for (it = hints->begin; it; it = it->next)

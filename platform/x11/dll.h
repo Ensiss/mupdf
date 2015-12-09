@@ -20,6 +20,7 @@ typedef struct  s_dll
 
 t_dll           *dll_create();
 void            dll_delete(t_dll *dll);
+void            dll_delete_free_data(t_dll *dll);
 void            dll_cleanup();
 
 void            dll_push_back(t_dll *dll, void *data);

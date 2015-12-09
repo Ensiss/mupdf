@@ -15,8 +15,10 @@ static t_dll_node       *dll_node_create(void *data)
   return node;
 }
 
-static void      dll_node_delete(t_dll_node *node)
+static void      dll_node_delete(t_dll_node *node, char freedata)
 {
+  if (freedata)
+    free(node->data);
   free(node);
 }
 
@@ -45,7 +47,21 @@ void            dll_delete(t_dll *dll)
   while (it)
     {
       next = it->next;
-      dll_node_delete(it);
+      dll_node_delete(it, 0);
+      it = next;
+    }
+  free(dll);
+}
+
+void            dll_delete_free_data(t_dll *dll)
+{
+  t_dll_node    *it = dll->begin;
+  t_dll_node    *next;
+
+  while (it)
+    {
+      next = it->next;
+      dll_node_delete(it, 1);
       it = next;
     }
   free(dll);
