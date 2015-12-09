@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+
 #include "pdfapp.h"
 #include "curl_stream.h"
 
@@ -1196,6 +1198,51 @@ void pdfapp_onkey(pdfapp_t *app, int c, int modifiers)
 		return;
 	}
 
+        if (app->hintmode)
+          {
+            int n = strlen(app->typedhint);
+            if (c < ' ')
+              {
+                if (c == '\b' && n > 0)
+                  app->typedhint[n - 1] = '\0';
+                if (strchr("\033\r\n", c))
+                  app->hintmode = 0;
+              }
+            else if (n + 2 < sizeof(app->typedhint))
+              {
+                t_dll_node      *it;
+                char            found = 0;
+
+                app->typedhint[n] = c;
+                app->typedhint[n + 1] = '\0';
+                if (app->hints)
+                  {
+                    for (it = app->hints->begin; it; it = it->next)
+                      {
+                        t_hint    *hint = (t_hint *)it->data;
+                        if (strcasestr(hint->hint, app->typedhint) == hint->hint)
+                          {
+                            found = 1;
+                            if (strlen(hint->hint) == n + 1)
+                              {
+                                if (hint->link->dest.kind == FZ_LINK_URI)
+                                  pdfapp_gotouri(app, hint->link->dest.ld.uri.uri);
+                                else if (hint->link->dest.kind == FZ_LINK_GOTO)
+                                  pdfapp_gotopage(app, hint->link->dest.ld.gotor.page + 1);
+                                app->typedhint[0] = '\0';
+                                app->hintmode = 0;
+                                break;
+                              }
+                          }
+                      }
+                    if (!found)
+                      app->typedhint[n] = '\0';
+                  }
+              }
+            winrepaint(app);
+            return;
+          }
+
 	/*
 	 * Save numbers typed for later
 	 */
@@ -1302,7 +1349,13 @@ void pdfapp_onkey(pdfapp_t *app, int c, int modifiers)
 	 */
 
 	case 'f':
-                pdfapp_fullscreen(app);
+                if (app->page_links)
+                {
+                        app->hintmode = 1;
+                        app->typedhint[0] = '\0';
+                        pdfapp_showpage(app, 0, 1, 1, 0, 0);
+                }
+                /* pdfapp_fullscreen(app); */
 		break;
 
 	case 'w':

@@ -263,7 +263,7 @@ $(MUJSTEST) : $(MUJSTEST_OBJ)
 
 ifeq "$(HAVE_X11)" "yes"
 MUVIEW_X11 := $(OUT)/mupdf-x11
-MUVIEW_X11_OBJ := $(addprefix $(OUT)/platform/x11/, x11_main.o x11_image.o pdfapp.o)
+MUVIEW_X11_OBJ := $(addprefix $(OUT)/platform/x11/, x11_main.o x11_image.o pdfapp.o hints.o dll.o tree.o)
 $(MUVIEW_X11_OBJ) : $(FITZ_HDR) $(PDF_HDR)
 $(MUVIEW_X11) : $(MUPDF_LIB) $(THIRD_LIBS)
 $(MUVIEW_X11) : $(MUVIEW_X11_OBJ)
@@ -280,7 +280,7 @@ endif
 
 ifeq "$(HAVE_CURL)" "yes"
 MUVIEW_X11_CURL := $(OUT)/mupdf-x11-curl
-MUVIEW_X11_CURL_OBJ := $(addprefix $(OUT)/platform/x11/curl/, x11_main.o x11_image.o pdfapp.o curl_stream.o)
+MUVIEW_X11_CURL_OBJ := $(addprefix $(OUT)/platform/x11/curl/, x11_main.o x11_image.o pdfapp.o curl_stream.o hints.o dll.o tree.o)
 $(MUVIEW_X11_CURL_OBJ) : $(FITZ_HDR) $(PDF_HDR)
 $(MUVIEW_X11_CURL) : $(MUPDF_LIB) $(THIRD_LIBS) $(CURL_LIB)
 $(MUVIEW_X11_CURL) : $(MUVIEW_X11_CURL_OBJ)

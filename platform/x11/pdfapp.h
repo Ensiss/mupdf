@@ -3,6 +3,7 @@
 
 #include "mupdf/fitz.h"
 #include "mupdf/pdf.h"
+#include "hints.h"
 
 /*
  * Utility object for handling a pdf application / view
@@ -130,6 +131,11 @@ struct pdfapp_s
 	int searchpage;
 	fz_rect hit_bbox[512];
 	int hit_count;
+
+        /* Hint mode */
+        int hintmode;
+        char typedhint[8];
+        t_dll *hints;
 
 	/* client context storage */
 	void *userdata;

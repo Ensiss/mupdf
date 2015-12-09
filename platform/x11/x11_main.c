@@ -1,4 +1,7 @@
+#define _GNU_SOURCE
+
 #include "pdfapp.h"
+#include "hints.h"
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -461,6 +464,86 @@ static void fillrect(int x, int y, int w, int h)
 		XFillRectangle(xdpy, xwin, xgc, x, y, w, h);
 }
 
+static void drawrect(int x, int y, int w, int h)
+{
+	if (w > 0 && h > 0)
+		XDrawRectangle(xdpy, xwin, xgc, x, y, w, h);
+}
+
+enum    e_corner
+  {
+    E_TOPLEFT,
+    E_TOPRIGHT,
+    E_BOTLEFT,
+    E_BOTRIGHT,
+    E_CENTER,
+    E_TOTAL
+  };
+
+static void drawBoxedString(char *s, int x, int y, enum e_corner corner, unsigned int fg, unsigned int bg)
+{
+  static XFontStruct *fntstruct = NULL;
+  static float  dx[] = {0., 1., 0., 1., 0.5};
+  static float  dy[] = {0., 0., 1., 1., 0.5};
+
+  int           len = strlen(s);
+  int           direction, ascent, descent;
+  int           tx, ty, w, h;
+  XCharStruct   overall;
+  int           padding = 2;
+
+  if (corner >= E_TOTAL)
+    corner = E_CENTER;
+  if (!fntstruct)
+    fntstruct = XQueryFont(xdpy, XGContextFromGC(xgc));
+  XTextExtents(fntstruct, s, len, &direction, &ascent, &descent, &overall);
+
+  w = overall.width + padding + 1;
+  h = ascent + descent;
+  tx = x - w * dx[corner] + (!dx[corner]);
+  ty = y - h * dy[corner] + (!dy[corner]);
+
+
+  XSetForeground(xdpy, xgc, bg);
+  fillrect(tx - 1, ty - 1, w + 1, h + 1);
+  XSetForeground(xdpy, xgc, fg);
+  XDrawString(xdpy, xwin, xgc, tx + padding / 2 + 1, ty + ascent, s, len);
+  drawrect(tx - 1, ty - 1, w + 1, h + 1);
+}
+
+static void drawLinks(pdfapp_t *app)
+{
+  t_dll         *hints;
+  t_dll_node    *it;
+
+  if (app->hints)
+    dll_delete(app->hints);
+  hints = computeHints(app->page_links, "fjdkslqmghrueizoaptyvcxwbn");
+  app->hints = hints;
+  for (it = hints->begin; it; it = it->next)
+    {
+      t_hint    *hint = (t_hint *)it->data;
+      fz_link   *link = hint->link;
+      fz_rect   *rect = &link->rect;
+      fz_irect  irect;
+      int       x, y, w, h;
+      float     ratio = app->resolution / 72.0;
+
+      if (app->typedhint[0] && strcasestr(hint->hint, app->typedhint) != hint->hint)
+        continue;
+
+      fz_pixmap_bbox(app->ctx, app->image, &irect);
+      x = (int) (rect->x0 * ratio) + app->panx - irect.x0;
+      y = (int) (rect->y0 * ratio) + app->pany - irect.y0;
+      w = (int) ((rect->x1 - rect->x0) * ratio);
+      h = (int) ((rect->y1 - rect->y0) * ratio);
+
+      XSetForeground(xdpy, xgc, 0xFF0000);
+      drawrect(x, y, w, h);
+      drawBoxedString(hint->hint, x, y, E_TOPLEFT, 0x000000, 0xFFFFFF);
+    }
+}
+
 static void winblitstatusbar(pdfapp_t *app)
 {
 	if (gapp.issearching)
@@ -483,6 +566,8 @@ static void winblitstatusbar(pdfapp_t *app)
 		snprintf(buf, sizeof buf, "Page %d/%d", gapp.pageno, gapp.pagecount);
 		windrawstringxor(&gapp, 10, 20, buf);
 	}
+        if (app->hintmode)
+          drawLinks(app);
 }
 
 static void winblit(pdfapp_t *app)
@@ -895,6 +980,7 @@ int main(int argc, char **argv)
 	gapp.scrh = DisplayHeight(xdpy, xscr);
 	gapp.resolution = resolution;
 	gapp.pageno = pageno;
+        gapp.hintmode = 0;
 
 	tmo_at.tv_sec = 0;
 	tmo_at.tv_usec = 0;
