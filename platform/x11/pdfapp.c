@@ -877,6 +877,13 @@ static void pdfapp_showpage(pdfapp_t *app, int loadpage, int drawpage, int repai
 
 	if (loadpage)
 	{
+                if (app->hints)
+                  {
+                    dll_delete_free_data(app->hints);
+                    app->hints = NULL;
+                    app->hintmode = 0;
+                  }
+
 		pdfapp_loadpage(app, searching);
 
 		/* Zero search hit position */
@@ -1201,12 +1208,15 @@ void pdfapp_onkey(pdfapp_t *app, int c, int modifiers)
         if (app->hintmode)
           {
             int n = strlen(app->typedhint);
+            int refresh = 1;
             if (c < ' ')
               {
                 if (c == '\b' && n > 0)
                   app->typedhint[n - 1] = '\0';
-                if (strchr("\033\r\n", c))
+                else if (strchr("\033\r\n", c))
                   app->hintmode = 0;
+                else
+                  refresh = 0;
               }
             else if (n + 2 < sizeof(app->typedhint))
               {
@@ -1236,10 +1246,14 @@ void pdfapp_onkey(pdfapp_t *app, int c, int modifiers)
                           }
                       }
                     if (!found)
-                      app->typedhint[n] = '\0';
+                      {
+                        app->typedhint[n] = '\0';
+                        refresh = 0;
+                      }
                   }
               }
-            winrepaint(app);
+            if (refresh)
+              winrepaint(app);
             return;
           }
 

@@ -255,7 +255,7 @@ $(MJSGEN) : $(addprefix $(OUT)/tools/, mjsgen.o)
 	$(LINK_CMD)
 
 MUJSTEST := $(OUT)/mujstest
-MUJSTEST_OBJ := $(addprefix $(OUT)/platform/x11/, jstest_main.o pdfapp.o)
+MUJSTEST_OBJ := $(addprefix $(OUT)/platform/x11/, jstest_main.o pdfapp.o hints.o dll.o tree.o)
 $(MUJSTEST_OBJ) : $(FITZ_HDR) $(PDF_HDR)
 $(MUJSTEST) : $(MUPDF_LIB) $(THIRD_LIBS)
 $(MUJSTEST) : $(MUJSTEST_OBJ)
