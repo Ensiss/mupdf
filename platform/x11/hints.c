@@ -51,9 +51,9 @@ static t_tree   *genTree(fz_link *page_links, char *hintchars)
       if (children && children->size == hintcharsz)
         {
           dll_pop_front(queue);
-          node = tree_add_child((t_tree *)children->begin->data, (void *) (long) hintchars[0]);
-          dll_push_back(queue, node);
           parent = (t_tree *) queue->begin->data;
+          node = tree_add_child(parent, (void *) (long) hintchars[0]);
+          dll_push_back(queue, node);
           children = parent->children;
         }
       node = tree_add_child(parent, (void *) (long) hintchars[children ? children->size : 0]);
