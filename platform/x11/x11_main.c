@@ -480,7 +480,7 @@ enum    e_corner
     E_TOTAL
   };
 
-static void drawBoxedString(char *s, int x, int y, enum e_corner corner, unsigned int fg, unsigned int bg)
+static void drawBoxedString(char *s, int x, int y, enum e_corner corner, unsigned int fg, unsigned int bg, unsigned int selected, int baselen)
 {
   static XFontStruct *fntstruct = NULL;
   static float  dx[] = {0., 1., 0., 1., 0.5};
@@ -488,6 +488,7 @@ static void drawBoxedString(char *s, int x, int y, enum e_corner corner, unsigne
 
   int           len = strlen(s);
   int           direction, ascent, descent;
+  int           basedir, baseascent, basedescent;
   int           tx, ty, w, h;
   XCharStruct   overall;
   int           padding = 2;
@@ -507,8 +508,14 @@ static void drawBoxedString(char *s, int x, int y, enum e_corner corner, unsigne
   XSetForeground(xdpy, xgc, bg);
   fillrect(tx - 1, ty - 1, w + 1, h + 1);
   XSetForeground(xdpy, xgc, fg);
-  XDrawString(xdpy, xwin, xgc, tx + padding / 2 + 1, ty + ascent, s, len);
   drawrect(tx - 1, ty - 1, w + 1, h + 1);
+  XSetForeground(xdpy, xgc, selected);
+  XDrawString(xdpy, xwin, xgc, tx + padding / 2 + 1, ty + ascent, s, baselen);
+
+  XTextExtents(fntstruct, s, baselen, &basedir, &baseascent, &basedescent, &overall);
+  tx += overall.width;
+  XSetForeground(xdpy, xgc, fg);
+  XDrawString(xdpy, xwin, xgc, tx + padding / 2 + 1, ty + ascent, s + baselen, len - baselen);
 }
 
 static void drawLinks(pdfapp_t *app)
@@ -539,7 +546,7 @@ static void drawLinks(pdfapp_t *app)
 
       XSetForeground(xdpy, xgc, 0xFF0000);
       drawrect(x, y, w, h);
-      drawBoxedString(hint->hint, x, y, E_TOPLEFT, 0x000000, 0xFFFFFF);
+      drawBoxedString(hint->hint, x, y, E_TOPLEFT, 0x000000, 0xFFFFFF, 0xFF7F7F, strlen(app->typedhint));
     }
 }
 
